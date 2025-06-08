@@ -99,6 +99,10 @@ class TrackSplitterPlugin(pcbnew.ActionPlugin):
         windows = wx.GetTopLevelWindows()
         parent = wx.FindWindowByName("PcbEditorFrame") or (windows[0] if windows else None)
 
+        if parent is None:
+            wx.MessageBox("Could not find the main KiCad window.", "Error", wx.OK | wx.ICON_ERROR)
+            return
+
         selected_items = [x for x in board.GetTracks() if x.IsSelected()]
         preselected_net = None
         for item in selected_items:
@@ -108,16 +112,22 @@ class TrackSplitterPlugin(pcbnew.ActionPlugin):
 
         dialog = SettingsDialog(parent, title="Track Splitter Settings", board=board, preselected_net=preselected_net)
         
-        if dialog.ShowModal() == wx.ID_OK:
-            settings = dialog.get_settings()
-            if not settings:
-                wx.MessageBox("Invalid input. Please check your numbers.", "Error", wx.OK | wx.ICON_ERROR)
-                return
-            
-            # Execute the core logic
-            self.split_tracks(board, settings)
-
-        dialog.Destroy()
+        try:
+            if dialog.ShowModal() == wx.ID_OK:
+                settings = dialog.get_settings()
+                if not settings:
+                    wx.MessageBox("Invalid input. Please check your numbers.", "Error", wx.OK | wx.ICON_ERROR)
+                    return
+                
+                # Execute the core logic
+                try:
+                    self.split_tracks(board, settings)
+                except Exception as e:
+                    wx.MessageBox(f"An error occurred while splitting tracks: {e}", "Error", wx.OK | wx.ICON_ERROR)
+        except Exception as e:
+            wx.MessageBox(f"An error occurred while displaying the settings dialog: {e}", "Error", wx.OK | wx.ICON_ERROR)
+        finally:
+            dialog.Destroy()
 
     def split_tracks(self, board, settings):
         """The core logic for finding, splitting, and replacing tracks."""
