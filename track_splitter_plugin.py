@@ -137,7 +137,10 @@ class TrackSplitterPlugin(pcbnew.ActionPlugin):
         # --- Stage 1: Find all tracks that need to be processed ---
         tracks_to_process = []
         for track in board.GetTracks():
-            if track.GetNetname() == original_net_name:
+            if (
+                isinstance(track, pcbnew.PCB_TRACK)
+                and track.GetNetname() == original_net_name
+            ):
                 tracks_to_process.append(track)
 
         if not tracks_to_process:
