@@ -20,8 +20,7 @@ import wx
 # Helper class for the settings dialog
 class SettingsDialog(wx.Dialog):
     def __init__(self, parent, title, board, preselected_net=None):
-    def __init__(self, parent, title, board):
-                super(SettingsDialog, self).__init__(parent, title=title, size=(350, 250))
+        super(SettingsDialog, self).__init__(parent, title=title, size=(350, 250))
 
         self.board = board
         self.panel = wx.Panel(self)
@@ -32,7 +31,7 @@ class SettingsDialog(wx.Dialog):
         
         sb_net = wx.StaticBox(self.panel, label='Target Net')
         sbs_net = wx.StaticBoxSizer(sb_net, wx.VERTICAL)
-                self.net_choice = wx.Choice(self.panel, choices=nets)
+        self.net_choice = wx.Choice(self.panel, choices=nets)
         if preselected_net in nets:
             self.net_choice.SetSelection(nets.index(preselected_net))
         elif nets:
@@ -100,7 +99,7 @@ class TrackSplitterPlugin(pcbnew.ActionPlugin):
         windows = wx.GetTopLevelWindows()
         parent = wx.FindWindowByName("PcbEditorFrame") or (windows[0] if windows else None)
 
-                selected_items = [x for x in board.GetTracks() if x.IsSelected()]
+        selected_items = [x for x in board.GetTracks() if x.IsSelected()]
         preselected_net = None
         for item in selected_items:
             if isinstance(item, pcbnew.PCB_TRACK) and item.GetNetname():
@@ -138,7 +137,10 @@ class TrackSplitterPlugin(pcbnew.ActionPlugin):
         # --- Stage 1: Find all tracks that need to be processed ---
         tracks_to_process = []
         for track in board.GetTracks():
-            if track.GetNetname() == original_net_name:
+            if (
+                isinstance(track, pcbnew.PCB_TRACK)
+                and track.GetNetname() == original_net_name
+            ):
                 tracks_to_process.append(track)
 
         if not tracks_to_process:
@@ -146,42 +148,6 @@ class TrackSplitterPlugin(pcbnew.ActionPlugin):
             return
 
         # --- Stage 2: Process each found track ---
-            if isinstance(track, pcbnew.PCB_ARC):
-                # Approximate arc as a straight segment between start and end for now
-                start_pos = track.GetStart()
-                end_pos = track.GetEnd()
-                mid_pos = track.GetMid()
-                center = track.GetCenter()
-                radius = track.GetRadius()
-                angle = track.GetAngle()
-
-                direction = pcbnew.VECTOR2I(end_pos.x - start_pos.x, end_pos.y - start_pos.y)
-                length = (direction.x**2 + direction.y**2) ** 0.5
-                unit_dx = direction.x / length
-                unit_dy = direction.y / length
-                shift_vec_x = -unit_dy
-                shift_vec_y = unit_dx
-
-                for i in range(num_splits):
-                    offset_iu = -group_width_iu / 2 + i * (split_width_iu + internal_sep_iu) + (split_width_iu / 2)
-                    shift_x = int(round(shift_vec_x * offset_iu))
-                    shift_y = int(round(shift_vec_y * offset_iu))
-
-                    arc = pcbnew.PCB_ARC(board)
-                    arc.SetStart(pcbnew.VECTOR2I(start_pos.x + shift_x, start_pos.y + shift_y))
-                    arc.SetMid(pcbnew.VECTOR2I(mid_pos.x + shift_x, mid_pos.y + shift_y))
-                    arc.SetEnd(pcbnew.VECTOR2I(end_pos.x + shift_x, end_pos.y + shift_y))
-                    arc.SetWidth(split_width_iu)
-                    arc.SetNetCode(net_code)
-                    arc.SetLayer(layer)
-
-                    board.Add(arc)
-                    new_group.AddItem(arc)
-                    new_tracks_count += 1
-
-                board.Remove(track)
-                continue
-
         new_tracks_count = 0
         for track in tracks_to_process:
             start_pos = track.GetStart()
