@@ -2,10 +2,10 @@
     "name": "Track Splitter",
     "title": "Track Splitter",
     "description": "Splits a single track into a bus of multiple parallel tracks (Litz-style).",
-    "version": "1.0.2",
+    "version": "1.1.0",
     "author": "Gemini (fixed by ChatGPT)",
     "category": "Modify PCB",
     "icon": "icon.png",
     "show_toolbar_button": true,
-    "required_api_version": "8.0"
+    "required_api_version": "9.0"
 }
