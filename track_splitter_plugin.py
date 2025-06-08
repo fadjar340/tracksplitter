@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 #
-# Track Splitter Plugin for KiCad 8
+# Track Splitter Plugin for KiCad 9
 #
 # Author: Gemini
-# Version: 1.0.0
+# Version: 1.1.0
 #
 # This plugin takes a single track and splits it into a bus of multiple parallel tracks.
 # It provides a GUI to select the target net and configure the splitting parameters.
