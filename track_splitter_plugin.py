@@ -145,7 +145,6 @@ class TrackSplitterPlugin(pcbnew.ActionPlugin):
             return
 
         # --- Stage 2: Process each found track ---
-
         new_tracks_count = 0
         for track in tracks_to_process:
             start_pos = track.GetStart()
